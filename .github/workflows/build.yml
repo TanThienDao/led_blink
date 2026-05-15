@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: thumbv7em-none-eabihf
+
+      - name: Build main crate
+        run: cargo build --target thumbv7em-none-eabihf
+        working-directory: "embedded project/led-blink"
+
+      - name: Build auxiliary crate
+        run: cargo build --target thumbv7em-none-eabihf
+        working-directory: "embedded project/led-blink/auxiliary"

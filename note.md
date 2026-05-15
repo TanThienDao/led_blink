@@ -150,26 +150,26 @@
       (gdb) continue
         ```
         - Set a breakpoint in main (or file:line), then continue:
-        - ```aiignore
+            - ```aiignore
           (gdb) monitor reset halt
           (gdb) break main
           (gdb) continue
-          ```
+            ```
         - If break main is not resolved, use line breakpoints in your file:
-        - ```aiignore
+            - ```aiignore
           (gdb) break src/main.rs:10
           (gdb) continue
-            ```
+          ```
         - Or runtime symbol fallback:
             - ```aiignore
-           (gdb) break *0x08000194
-           (gdb) continue
-           ```
+          (gdb) break *0x08000194
+          (gdb) continue
+             ```
         - Set assemble :
-        - ```aiignore
-           gdb) set print asm-demangle on
-           (gdb) disassemble /m
-           ```
+            - ```aiignore
+          gdb) set print asm-demangle on
+          (gdb) disassemble /m
+             ```
 
 ## Release build
 
