@@ -18,10 +18,5 @@ jobs:
         with:
           targets: thumbv7em-none-eabihf
 
-      - name: Build main crate
+      - name: Build
         run: cargo build --target thumbv7em-none-eabihf
-        working-directory: "embedded project/led-blink"
-
-      - name: Build auxiliary crate
-        run: cargo build --target thumbv7em-none-eabihf
-        working-directory: "embedded project/led-blink/auxiliary"
