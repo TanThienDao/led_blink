@@ -61,47 +61,46 @@
                 - `gdb-multiarch -q -ex "target remote :3333" target/thumbv7em-none-eabihf/debug/led-roulette`
                 - `gdb -q -ex "target remote :3333" target/thumbv7em-none-eabihf/debug/led-roulette`
             - sucessfull case:
-            - ```
-      Reading symbols from target/thumbv7em-none-eabihf/debug/led-roulette...
-      Remote debugging using :3333
-      0x08005200 in ?? ()
-      (gdb)
-        ```
+                ```
+              Reading symbols from target/thumbv7em-none-eabihf/debug/led-roulette...
+              Remote debugging using :3333
+              0x08005200 in ?? ()
+              (gdb)
+                ```
 
             - If you see the above output, it means that GDB has successfully connected to the.
             - Then run `cargo run --target thumbv7em-none-eabihf` This is to flash ?
             - neeed to execute load.
             - ```
-        (gdb) load
-        Loading section .vector_table, size 0x194 lma 0x8000000
-        Loading section .text, size 0x1ea0 lma 0x8000194
-        Loading section .rodata, size 0x1180 lma 0x8002034
-        Start address 0x08000194, load size 12724
-        Transfer rate: 17 KB/sec, 4241 bytes/write.
-        ``` 
-            - After loading, you can run the program with `continue` or `c` in GDB.
-                - `(gdb) continue`
-                  -(gdb) load means: GDB tells OpenOCD to program your ELF into the MCU flash memory.
-                - Line by line:
-                    - <span style="color: #FFD700;">Loading section .vector_table, size 0x194 lma 0x8000000</span>
-                        - Programs the interrupt vector table.
-                        - size 0x194 = 0x194 bytes (404 bytes).
-                        - lma 0x08000000 = flash address where this section is written.
-                    - <span style="color: #FFD700;">Loading section .text, size 0x1ea0 lma 0x8000194</span>
-                        - Programs executable machine code (your functions/instructions).
-                        - size 0x1ea0 = 7840 bytes.
-                        - Starts right after vector table at 0x08000194.
-                    - <span style="color: #FFD700;">Loading section .rodata, size 0x1180 lma 0x8002034</span>
-                        - Programs read-only constants (e.g., string literals, const tables).
-                        - size 0x1180 = 4480 bytes.
-                        - Written at 0x08002034.
-                    - <span style="color: #FFD700;">Start address 0x08000194, load size 12724</span>
-                        - Entry/start PC from the ELF is 0x08000194 (where execution begins after reset).
-                        - The entry point is the part of a program that a processor CPU eill execute first.
-                        - Total bytes programmed this time: 12,724 bytes.
-                    - <span style="color: #FFD700;">Transfer rate: 17 KB/sec, 4241 bytes/write.
-                        - Effective flashing speed.
-                        - 4241 bytes/write is the average chunk size sent per flash write operation.
+                (gdb) load
+                Loading section .vector_table, size 0x194 lma 0x8000000
+                Loading section .text, size 0x1ea0 lma 0x8000194
+                Loading section .rodata, size 0x1180 lma 0x8002034
+                Start address 0x08000194, load size 12724
+                Transfer rate: 17 KB/sec, 4241 bytes/write.```
+    - After loading, you can run the program with `continue` or `c` in GDB.
+        - `(gdb) continue`
+          -(gdb) load means: GDB tells OpenOCD to program your ELF into the MCU flash memory.
+    - Line by line:
+        - <span style="color: #FFD700;">Loading section .vector_table, size 0x194 lma 0x8000000</span>
+            - Programs the interrupt vector table.
+            - size 0x194 = 0x194 bytes (404 bytes).
+            - lma 0x08000000 = flash address where this section is written.
+        - <span style="color: #FFD700;">Loading section .text, size 0x1ea0 lma 0x8000194</span>
+            - Programs executable machine code (your functions/instructions).
+            - size 0x1ea0 = 7840 bytes.
+            - Starts right after vector table at 0x08000194.
+        - <span style="color: #FFD700;">Loading section .rodata, size 0x1180 lma 0x8002034</span>
+            - Programs read-only constants (e.g., string literals, const tables).
+            - size 0x1180 = 4480 bytes.
+            - Written at 0x08002034.
+        - <span style="color: #FFD700;">Start address 0x08000194, load size 12724</span>
+            - Entry/start PC from the ELF is 0x08000194 (where execution begins after reset).
+            - The entry point is the part of a program that a processor CPU eill execute first.
+            - Total bytes programmed this time: 12,724 bytes.
+        - <span style="color: #FFD700;">Transfer rate: 17 KB/sec, 4241 bytes/write.
+            - Effective flashing speed.
+            - 4241 bytes/write is the average chunk size sent per flash write operation.
 
 ## Debug it
 
@@ -142,35 +141,35 @@
       and the assembly code simultaneously. This allows you to see how the high-level source code corresponds to the
       low-level assembly instructions, providing a comprehensive view of the program's execution during debugging.
     - ``` aiignore
-  $ cargo run
-  (gdb) target remote :3333
-  (gdb) load
-  (gdb) set print asm-demangle on
-  (gdb) set style sources off
-  (gdb) break main
-  (gdb) continue
-    ```
-    - Set a breakpoint in main (or file:line), then continue:
-        - ```aiignore
-      (gdb) monitor reset halt
+      $ cargo run
+      (gdb) target remote :3333
+      (gdb) load
+      (gdb) set print asm-demangle on
+      (gdb) set style sources off
       (gdb) break main
       (gdb) continue
-      ```
-    - If break main is not resolved, use line breakpoints in your file:
+        ```
+        - Set a breakpoint in main (or file:line), then continue:
         - ```aiignore
-      (gdb) break src/main.rs:10
-      (gdb) continue
-      ```
-    - Or runtime symbol fallback:
+          (gdb) monitor reset halt
+          (gdb) break main
+          (gdb) continue
+          ```
+        - If break main is not resolved, use line breakpoints in your file:
         - ```aiignore
-      (gdb) break *0x08000194
-      (gdb) continue
-      ```
-    - Set assemble :
+          (gdb) break src/main.rs:10
+          (gdb) continue
+            ```
+        - Or runtime symbol fallback:
+            - ```aiignore
+           (gdb) break *0x08000194
+           (gdb) continue
+           ```
+        - Set assemble :
         - ```aiignore
-      (gdb) set print asm-demangle on
-      (gdb) disassemble /m
-      ```
+           gdb) set print asm-demangle on
+           (gdb) disassemble /m
+           ```
 
 ## Release build
 

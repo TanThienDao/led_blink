@@ -4,9 +4,9 @@
 
 use aux5::{entry, DelayMs, LedArray, OutputSwitch};
 
-const BLINK_PERIOD_MS: u16 = 200;   // all-LEDs blink delay
+const BLINK_PERIOD_MS: u16 = 200; // all-LEDs blink delay
 const ROULETTE_PERIOD_MS: u16 = 50; // roulette step delay
-const BLINK_CYCLES: u8 = 5;         // full on/off blinks before roulette
+const BLINK_CYCLES: u8 = 5; // full on/off blinks before roulette
 
 #[entry]
 fn main() -> ! {
