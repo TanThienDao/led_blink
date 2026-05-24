@@ -184,3 +184,31 @@ cargo clean
 cargo build --target thumbv7em-none-eabihf
 file target/thumbv7em-none-eabihf/debug/led-roulette
 ```
+
+# Print Hello Word !
+
+- SB10 connectt to PB3
+- using femal to femal jumper wire to connect SB10 to PB3
+- The iprintln macro will format messages and output them to the microcontroller’s ITM.
+- itm.txt file is locate at the /tmp directory, and it will be created when you run the program. You can use `tail -f /tmp/itm.txt` to view the output in real-time. This allows you to see the "Hello, world!" message printed by the microcontroller as it runs.
+- OpenOCD, which is managing the debug session, can receive data sent through this ITM channel and redirect it to a file.
+    - itmdump command:
+        - ``` console
+      $ itmdump -F -f itm.txt
+      ```
+
+## New GDB commands
+- ``(gdb) c`` short command for continue
+- ``(gdb) b main`` short command for break main
+- ``(gdb) b src/main.rs:10`` set a breakpoint at line
+- ``(gdb) b *0x08000194`` set a breakpoint at address
+
+## Panic notet
+- Ultimately, panic! is just another function call so you can see it leaves behind a trace of function calls. This allows you to use backtrace or just bt and to see call stack that caused the panic:
+```aiignore 
+   monitor reset halt
+   delete breakpoints
+   break panic_itm::panic
+   continue
+  ```
+- If you want to see the backtrace of the panic, you can use the backtrace command in GDB after hitting the breakpoint on panic. This will show you the call stack leading up to the panic, which can help you identify where in your code the issue occurred.

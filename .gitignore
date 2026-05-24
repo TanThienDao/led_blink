@@ -9,6 +9,15 @@
 itm.txt
 ./.idea
 .idea
+.idea/
+*.iml
+*.iws
+*.ipr
+*.xml
+# Ignore build output directories
+/build/
+/dist/
+/out/
 # Default ignored files
 /shelf/
 /workspace.xml
