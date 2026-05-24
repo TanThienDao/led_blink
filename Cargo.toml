@@ -6,4 +6,5 @@ edition = "2024"
 
 [dependencies]
 aux5 = { path = "auxiliary" }
+cortex-m = "0.7.2"
 volatile = "0.4.3"

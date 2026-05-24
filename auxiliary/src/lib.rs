@@ -5,10 +5,15 @@
 pub use panic_itm;
 // panic handler
 
+pub use cortex_m::iprintln;
+pub use cortex_m::peripheral::ITM;
 pub use cortex_m_rt::entry;
 
 pub use stm32f3_discovery::{leds::Leds, stm32f3xx_hal, switch_hal};
 pub use switch_hal::{ActiveHigh, OutputSwitch, Switch, ToggleableOutputSwitch};
+
+mod logging;
+pub use logging::LogContext;
 
 use stm32f3xx_hal::prelude::*;
 pub use stm32f3xx_hal::{
@@ -20,13 +25,18 @@ pub use stm32f3xx_hal::{
 
 pub type LedArray = [Switch<gpioe::PEx<Output<PushPull>>, ActiveHigh>; 8];
 
-pub fn init() -> (Delay, LedArray) {
+pub fn init() -> (ITM, Delay, LedArray, LogContext) {
     let device_periphs = pac::Peripherals::take().unwrap();
     let mut reset_and_clock_control = device_periphs.RCC.constrain();
 
     let core_periphs = cortex_m::Peripherals::take().unwrap();
     let mut flash = device_periphs.FLASH.constrain();
+
     let clocks = reset_and_clock_control.cfgr.freeze(&mut flash.acr);
+
+    //ITM and SYST mustt come from the same one-time core peripheral instance
+    let itm = core_periphs.ITM;
+
     let delay = Delay::new(core_periphs.SYST, clocks);
 
     // initialize user leds
@@ -44,5 +54,7 @@ pub fn init() -> (Delay, LedArray) {
         &mut gpioe.otyper,
     );
 
-    (delay, leds.into_array())
+    let log_ctx = LogContext::new();
+
+    (itm, delay, leds.into_array(), log_ctx)
 }

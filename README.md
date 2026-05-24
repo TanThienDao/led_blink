@@ -15,12 +15,31 @@ A bare-metal Rust program for the **STM32F3 Discovery** board that runs two alte
 │  ALL 8 LEDs ON  →  wait 200 ms  →  ALL 8 LEDs OFF  │
 │  repeat 5 times                                      │
 └─────────────────────────────────────────────────────┘
-           ↓
+            ↓
 ┌─ Phase 2: Roulette (×8 steps) ──────────────────────┐
 │  LED[0] → LED[1] → LED[2] → … → LED[7] → (repeat)  │
 │  each step: next ON, wait 50 ms, current OFF         │
 └─────────────────────────────────────────────────────┘
-           ↓  loop forever
+            ↓  loop forever
+```
+
+**Console output with ITM logging:**
+
+```
+[00001ms] INFO: Boot: main entered
+[00002ms] INFO: Starting LED patterns...
+[00003ms] INFO: Blinking all LEDs... (cycle 1/5)
+[00207ms] INFO: Blinking all LEDs... (cycle 2/5)
+[00411ms] INFO: Blinking all LEDs... (cycle 3/5)
+[00615ms] INFO: Blinking all LEDs... (cycle 4/5)
+[00819ms] INFO: Blinking all LEDs... (cycle 5/5)
+[01023ms] INFO: Phase: roulette
+[01024ms] INFO: Roulette step: LED 0
+[01075ms] INFO: Roulette step: LED 1
+[01126ms] INFO: Roulette step: LED 2
+...
+[01553ms] INFO: Finished 1 roulette cycle.
+[01554ms] INFO: Starting LED patterns...
 ```
 
 ---
@@ -37,27 +56,42 @@ const BLINK_CYCLES: u8 = 5;         // full on/off blinks before roulette
 
 Three constants at the top let you tune timing without touching loop logic.
 
-**Main loop:**
+**Initialization and main loop:**
 
 ```rust
-loop {
-    // Phase 1 — all 8 LEDs blink on/off together
-    for _ in 0..BLINK_CYCLES {
-        all_on(&mut leds);
-        delay.delay_ms(BLINK_PERIOD_MS);
-        all_off(&mut leds);
-        delay.delay_ms(BLINK_PERIOD_MS);
-    }
+#[entry]
+fn main() -> ! {
+   let (mut itm, mut delay, mut leds, mut log_ctx) = aux5::init();
 
-    // Phase 2 — one LED chases around the ring
-    for curr in 0..leds.len() {
-        let next = (curr + 1) % leds.len();
-        leds[next].on().ok();
-        delay.delay_ms(ROULETTE_PERIOD_MS);
-        leds[curr].off().ok();
+   log_info!(itm, log_ctx, "Boot: main entered");
+
+   loop {
+      log_info!(itm, log_ctx, "Starting LED patterns...");
+
+      // Phase 1 — all 8 LEDs blink on/off together
+      for cycle in 0..BLINK_CYCLES {
+         log_info!(itm, log_ctx, "Blinking all LEDs... (cycle {}/{})", cycle + 1, BLINK_CYCLES);
+         all_on(&mut leds);
+         delay.delay_ms(BLINK_PERIOD_MS);
+         all_off(&mut leds);
+         delay.delay_ms(BLINK_PERIOD_MS);
+      }
+
+      log_info!(itm, log_ctx, "Phase: roulette");
+      // Phase 2 — one LED chases around the ring
+      for curr in 0..leds.len() {
+         log_info!(itm, log_ctx, "Roulette step: LED {} ", curr);
+         let next = (curr + 1) % leds.len();
+         leds[next].on().ok();
+         delay.delay_ms(ROULETTE_PERIOD_MS);
+         leds[curr].off().ok();
+      }
+      log_info!(itm, log_ctx, "Finished 1 roulette cycle.");
     }
 }
 ```
+
+The `init()` function now returns a 4-tuple: `(ITM, Delay, LedArray, LogContext)` for structured ITM-based logging.
 
 **Helper functions:**
 
@@ -66,11 +100,33 @@ loop {
 
 ### `auxiliary/src/lib.rs` (`aux5` crate)
 
-Local support crate that wraps board initialisation:
+Local support crate that wraps board initialisation and provides logging:
 
 - Configures system clocks via RCC
 - Initialises GPIO port E (PE8–PE15) as push-pull outputs
-- Returns `(Delay, LedArray)` ready to use
+- Exports `LogContext` struct for managing elapsed milliseconds during logging
+- Provides three logging macros: `log_info!`, `log_warn!`, `log_error!` for ITM-based output
+- Returns `(ITM, Delay, LedArray, LogContext)` tuple ready to use
+
+### `auxiliary/src/logging.rs`
+
+Implements the ITM logging infrastructure:
+
+- **`LogContext`**: A mutable context struct that tracks elapsed milliseconds (starts at 0, increments with each log
+  call)
+- **Logging macros** with automatic timestamp formatting `[{:05}ms] LEVEL: message`:
+   - `log_info!(itm, ctx, "message")` or `log_info!(itm, ctx, "format {}", arg)` — info-level messages
+   - `log_warn!(itm, ctx, "message")` — warning-level messages
+   - `log_error!(itm, ctx, "message")` — error-level messages
+
+Example usage:
+
+```rust
+log_info!(itm, log_ctx, "Boot: main entered");
+log_info!(itm, log_ctx, "Cycle {}/{}", current, total);
+log_warn!(itm, log_ctx, "LED timeout detected");
+log_error!(itm, log_ctx, "Critical error: {}", code);
+```
 
 ---
 
@@ -149,11 +205,60 @@ The LEDs will start animating on the board.
 
 ---
 
+## ITM Logging
+
+All major events in the program are logged to **ITM (Instrumentation Trace Macrocell)** with millisecond timestamps.
+Output appears in the GDB console when you run `cargo run`.
+
+### Log Format
+
+Each log message has the format:
+
+```
+[00123ms] INFO: Blinking all LEDs... (cycle 1/5)
+[00456ms] WARN: LED timeout detected
+[00789ms] ERROR: Critical failure
+```
+
+The timestamp `[{:05}ms]` automatically increments with each call to a logging macro, providing realtime relative timing
+of events.
+
+### Usage
+
+**In your code:**
+
+```rust
+log_info!(itm, log_ctx, "Boot: main entered");
+log_info!(itm, log_ctx, "Cycle {}/{}", current, total);
+log_warn!(itm, log_ctx, "Warning message");
+log_error!(itm, log_ctx, "Error code: {}", code);
+```
+
+**Expected log output during normal operation:**
+
+```
+[00001ms] INFO: Boot: main entered
+[00002ms] INFO: Starting LED patterns...
+[00003ms] INFO: Blinking all LEDs... (cycle 1/5)
+[00207ms] INFO: Blinking all LEDs... (cycle 2/5)
+[00411ms] INFO: Blinking all LEDs... (cycle 3/5)
+[00615ms] INFO: Blinking all LEDs... (cycle 4/5)
+[00819ms] INFO: Blinking all LEDs... (cycle 5/5)
+[01023ms] INFO: Phase: roulette
+[01024ms] INFO: Roulette step: LED 0
+[01075ms] INFO: Roulette step: LED 1
+[01126ms] INFO: Roulette step: LED 2
+...
+[01553ms] INFO: Finished 1 roulette cycle.
+[01554ms] INFO: Starting LED patterns...
+```
+
+---
+
 ## Release Build
 
 ```bash
-cargo build --release
-
+cargo build --target thumbv7em-none-eabihf --release
 # Inspect binary sections and sizes
 cargo size --target thumbv7em-none-eabihf --bin led-blink -- -A
 ```
@@ -167,9 +272,11 @@ led-blink/
 ├── .cargo/
 │   └── config.toml        # Default target + cargo run runner
 ├── auxiliary/
-│   └── src/lib.rs         # aux5: clocks, delay, LED array init
+│   └── src/
+│       ├── lib.rs         # aux5: clocks, delay, LED array, logging init
+│       └── logging.rs     # LogContext + log_info!/log_warn!/log_error! macros
 ├── src/
-│   └── main.rs            # Blink + roulette animation loop
+│   └── main.rs            # Blink + roulette animation loop with ITM logging
 ├── openocd.gdb            # GDB script: connect, flash, break at main
 └── Cargo.toml
 ```

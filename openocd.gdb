@@ -1,5 +1,14 @@
 # Connect to gdb remote server
-target remote :3333
+target extended-remote :3333
+
+# Configure TPIU/SWO for ITM trace output on STM32F3 Discovery
+# Set SWO pin speed (SWO clock = HCLK / (divisor + 1))
+# For STM32F3 @ 72 MHz, divisor=7 gives 9 MHz SWO clock
+#monitor tpiu config internal -o /tmp/itm.log uart off 72000000 9000000
+monitor tpiu config internal itm.log uart off 8000000
+
+# Enable ITM stimulus port 0 (for iprintln! output)
+monitor itm port 0 on
 
 # Load will flash the code
 load
