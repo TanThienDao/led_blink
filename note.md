@@ -194,8 +194,8 @@ file target/thumbv7em-none-eabihf/debug/led-roulette
 - OpenOCD, which is managing the debug session, can receive data sent through this ITM channel and redirect it to a file.
     - itmdump command:
         - ``` console
-      $ itmdump -F -f itm.txt
-      ```
+            $ itmdump -F -f itm.txt
+            ```
 
 ## New GDB commands
 - ``(gdb) c`` short command for continue
@@ -212,3 +212,9 @@ file target/thumbv7em-none-eabihf/debug/led-roulette
    continue
   ```
 - If you want to see the backtrace of the panic, you can use the backtrace command in GDB after hitting the breakpoint on panic. This will show you the call stack leading up to the panic, which can help you identify where in your code the issue occurred.
+
+# Register
+- A register is a small amount of storage available directly on the CPU. It is used to hold data that the CPU is currently processing. Registers are much faster to access than memory, so they are used for temporary storage of data and instructions during program execution. In the context of microcontrollers, registers are used to control hardware peripherals, manage system settings, and store intermediate values during computations. Each register has a specific purpose and is accessed using specific instructions in the assembly language. Understanding how to read and manipulate registers is crucial for low-level programming and debugging of embedded systems.  
+- LD3, the North LED, is connected to the pin PE9. PE9 is the short form of: Pin 9 on Port E.These pins are part of Port E so we’ll have to deal with the GPIOE peripheral.
+- The table says that base address of the GPIOE register block is 0x4800_1000.
+- ‘BSRR’ is the register which we will be using to set/reset. Its offset value is ‘0x18’ from the base address of the ‘GPIOE’. We can look up BSRR in the reference manual. GPIO Registers -> GPIO port bit set/reset register (GPIOx_BSRR).

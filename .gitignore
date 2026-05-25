@@ -7,8 +7,6 @@
 *.o
 *.d
 itm.txt
-./.idea
-.idea
 .idea/
 *.iml
 *.iws
@@ -28,3 +26,4 @@ itm.txt
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
