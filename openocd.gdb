@@ -7,7 +7,7 @@ target extended-remote :3333
 #monitor tpiu config internal -o /tmp/itm.log uart off 72000000 9000000
 monitor tpiu config internal itm.log uart off 8000000
 
-# Enable ITM stimulus port 0 (for iprintln! output)
+# Enable ITM stimulus port 0 (for iprintln! output) <reason for $itm.stim[0] >
 monitor itm port 0 on
 
 # Load will flash the code
