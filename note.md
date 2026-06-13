@@ -314,6 +314,97 @@ file target/thumbv7em-none-eabihf/debug/led-roulette
     This means: use the address in the stack pointer (sp), plus 4 bytes.
     So it stores the value into stack memory at offset 4 from sp.
     ```
+In GDB, the command p/x *gpioe is used to examine the state of the GPIOE peripheral registers.
+Here is the breakdown: `p/x *gpioe`
+- p: Short for print. It evaluates and displays the value of an expression.
+- /x: A format modifier that tells GDB to display the output in hexadecimal.
+- *gpioe: Dereferences the gpioe variable.
+``` bash
+(gdb) p/x *gpioe
+$1 = stm32f30x::gpioc::RegisterBlock {
+  moder: stm32f30x::gpioc::MODER {
+    register: vcell::VolatileCell<u32> {
+      value: core::cell::UnsafeCell<u32> {
+        value: 0x0
+      }
+    }
+  },
+  otyper: stm32f30x::gpioc::OTYPER {
+    register: vcell::VolatileCell<u32> {
+      value: core::cell::UnsafeCell<u32> {
+        value: 0x0
+      }
+    }
+  },
+  ospeedr: stm32f30x::gpioc::OSPEEDR {
+    register: vcell::VolatileCell<u32> {
+      value: core::cell::UnsafeCell<u32> {
+        value: 0x0
+      }
+    }
+  },
+  pupdr: stm32f30x::gpioc::PUPDR {
+    register: vcell::VolatileCell<u32> {
+--Type <RET> for more, q to quit, c to continue without paging--
+      value: core::cell::UnsafeCell<u32> {
+        value: 0x0
+      }
+    }
+  },
+  idr: stm32f30x::gpioc::IDR {
+    register: vcell::VolatileCell<u32> {
+      value: core::cell::UnsafeCell<u32> {
+        value: 0xc8
+      }
+    }
+  },
+  odr: stm32f30x::gpioc::ODR {
+    register: vcell::VolatileCell<u32> {
+      value: core::cell::UnsafeCell<u32> {
+        value: 0xff00
+      }
+    }
+  },
+  bsrr: stm32f30x::gpioc::BSRR {
+    register: vcell::VolatileCell<u32> {
+      value: core::cell::UnsafeCell<u32> {
+        value: 0x0
+      }
+--Type <RET> for more, q to quit, c to continue without paging--
+    }
+  },
+  lckr: stm32f30x::gpioc::LCKR {
+    register: vcell::VolatileCell<u32> {
+      value: core::cell::UnsafeCell<u32> {
+        value: 0x0
+      }
+    }
+  },
+  afrl: stm32f30x::gpioc::AFRL {
+    register: vcell::VolatileCell<u32> {
+      value: core::cell::UnsafeCell<u32> {
+        value: 0x0
+      }
+    }
+  },
+  afrh: stm32f30x::gpioc::AFRH {
+    register: vcell::VolatileCell<u32> {
+      value: core::cell::UnsafeCell<u32> {
+        value: 0x0
+      }
+    }
+  },
+  brr: stm32f30x::gpioc::BRR {
+--Type <RET> for more, q to quit, c to continue without paging--
+    register: vcell::VolatileCell<u32> {
+      value: core::cell::UnsafeCell<u32> {
+        value: 0x0
+      }
+    }
+  }
+}
+```
+
 
 ## ARM/Thumb Disassembly Glossary
 
