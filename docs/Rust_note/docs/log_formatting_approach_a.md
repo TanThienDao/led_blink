@@ -324,9 +324,9 @@ Monitor ITM output via the debugging interface to see timestamped logs.
 ## References
 
 - [Approach A vs B Comparison Document](LOG_FORMATTING_COMPARISON.md) *(if created)*
-- [Previous ITM Documentation](itm-logging.md)
+- [Previous ITM Documentation](../../Rust_note/docs/itm-logging.md)
 - [cortex_m iprintln Documentation](https://docs.rs/cortex-m/latest/cortex_m/macro.iprintln.html)
-- [STM32F3 Discovery Notes](../note.md)
+- [STM32F3 Discovery Notes](../../Rust_note/docs/note.md)
 
 ---
 

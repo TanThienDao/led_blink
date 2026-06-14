@@ -197,6 +197,7 @@ file target/thumbv7em-none-eabihf/debug/led-roulette
     - itmdump command:
         - ``` console
             $ itmdump -F -f itm.txt
+			
             ```
 
 ## New GDB commands
@@ -314,7 +315,8 @@ file target/thumbv7em-none-eabihf/debug/led-roulette
     This means: use the address in the stack pointer (sp), plus 4 bytes.
     So it stores the value into stack memory at offset 4 from sp.
     ```
-In GDB, the command p/x *gpioe is used to examine the state of the GPIOE peripheral registers.
+
+In GDB, the command p/x *gpioe is used to examine the state of the GPIOE peripheral registers. 
 Here is the breakdown: `p/x *gpioe`
 - p: Short for print. It evaluates and displays the value of an expression.
 - /x: A format modifier that tells GDB to display the output in hexadecimal.
@@ -404,7 +406,6 @@ $1 = stm32f30x::gpioc::RegisterBlock {
   }
 }
 ```
-
 
 ## ARM/Thumb Disassembly Glossary
 
