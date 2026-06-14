@@ -1,12 +1,11 @@
 # Manual Leds STM32 f3
 
----
-## To drive LEDs on the STM32F3 Discovery board, you have to perform two distinct steps because of how the hardware is physically designed.
+## To drive LEDs on the STM32F3 Discovery board, you have to perform two distinct steps because of how the hardware is physically designed. 
 
 Here is why both are necessary:
 
 ### 1. Enabling `rcc.ahbenr` (The "Master Power" Switch)
-By default, almost all peripherals on an STM32 are **disconnected from the clock** to save power.
+By default, almost all peripherals on an STM32 are **disconnected from the clock** to save power. 
 *   **The Problem:** If a peripheral (like `GPIOE`) doesn't have a clock signal, its internal logic is frozen. You cannot read from its registers, and any values you try to write to them will be ignored.
 *   **The Solution:** The `RCC` (Reset and Clock Control) unit manages these clocks. By setting the `iopeen` bit in the `AHBENR` register, you are "turning on the power" to Port E so that it can start processing commands.
 *   **Analogy:** This is like plugging a lamp into the wall outlet. Even if the lamp is "on," it won't work if there's no electricity coming from the wall.
@@ -27,7 +26,7 @@ If you skip **Step 1**, your code in **Step 2 and 3** will have no effect becaus
 ---
 ## To find which pins control the LEDs for the "compass" on the STM32F3 Discovery board, you can look at the \*\*schematics\*\* or the board's \*\*User Manual\*\*.
 
-### 1\. The Pin Mapping
+### 1\. The Pin Mapping  
 The compass LEDs are all connected to \*\*GPIO Port E\*\*. The specific pins are:  
 \* \*\*North:\*\* PE9 (Red)  
 \* \*\*North-East:\*\* PE10 (Orange)  
@@ -38,7 +37,7 @@ The compass LEDs are all connected to \*\*GPIO Port E\*\*. The specific pins are
 \* \*\*West:\*\* PE15 (Yellow)  
 \* \*\*North-West:\*\* PE8 (Green)
 
-![stm32f3_reference_manual_6.4LEDs.png](stm32f3_reference_manual_6.4LEDs.png)
+![81821ddb913c44980a88280ef56a76d4.png](../../_resources/81821ddb913c44980a88280ef56a76d4.png)
 
 \### 2. How to set them in \`moder\`  
 Since the LEDs are on pins \*\*8 through 15\*\*, you need to set all of those pins to \`output()\` in the \`moder\` register.
